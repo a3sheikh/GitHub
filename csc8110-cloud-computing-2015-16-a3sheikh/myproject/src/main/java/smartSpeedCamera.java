@@ -6,6 +6,7 @@
  * @author b4026838
  *
  */
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
@@ -34,24 +35,36 @@ public class smartSpeedCamera {
 		return location;
 	}
 	
-	public String setCityLocation(String cityLocation) {
-		return this.location = cityLocation;
+	public String setCityLocation() {
+		
+		return createRandomLocation();
 	}
 	
 	public String getStreetName() {
 		return streetName;
 	}
 	
-	public String setStreetName(String streetName) {
-	return	this.streetName = streetName;
+	public String setStreetName() {
+		ArrayList<String> StreetNames = new ArrayList<String>();
+		StreetNames.add("City Road");
+		StreetNames.add("Mill Road");
+		StreetNames.add("Westgate Road");
+		
+		if(this.location=="City centre"){ 
+			return StreetNames.get(0);
+		}
+		else if(this.location=="Gateshead"){return StreetNames.get(1); }
+		else{ return StreetNames.get(2);}
+		
+			
 	}
 	
 	public int getSpeedLimit() {
 		return speedLimit;
 	}
 	
-	public int setSpeedLimit(int speedLimit) {
-		return this.speedLimit = speedLimit;
+	public int setSpeedLimit() {
+		return createRandomSpeedLimit();
 	}
 	
 	public Date getDate() {
@@ -62,17 +75,21 @@ public class smartSpeedCamera {
 	return	this.date = new Date();
 	}
 	
-	/**
-	 *  Constructor
-	 */
-	public smartSpeedCamera(String location, String streetName, int speedLimit) {
-	
-		cameraId = setCameraId() ;
-		date= setDate();
-		location = setCityLocation(location);
-		streetName= setStreetName(streetName);
-		speedLimit= setSpeedLimit(speedLimit);
-	}
+	public int createRandomSpeedLimit(){
+		
+		ArrayList<Integer> SpeedLimit = new ArrayList<Integer>();
+		SpeedLimit.add(20);
+		SpeedLimit.add(30);
+		SpeedLimit.add(40);
+		
+		
+		
+		
+		Random random = new Random();
+		int index= random.nextInt(SpeedLimit.size());
+
+			return SpeedLimit.get(index);
+		}
 	
 	
 /**
@@ -80,7 +97,7 @@ public class smartSpeedCamera {
  */
 public String createRandomRegistryId()
 	{
-	    // syntax we would like to generate is DIA123456-A1B34      
+	    // syntax  would like to generate is DIA123456-A1B34      
 	    String val = "DI";      
 
 	    // char (1), random A-Z
@@ -108,20 +125,51 @@ public String createRandomRegistryId()
 
 	    return val;
 	}
-	
 
+public String createRandomLocation(){
+	
+	ArrayList<String> CameraInfo = new ArrayList<String>();
+	CameraInfo.add("City Centre");
+	CameraInfo.add("Fenham");
+	CameraInfo.add("Gateshead");
+	
+	Random random = new Random();
+	int index= random.nextInt(CameraInfo.size());
+	
+	
+	return CameraInfo.get(index);
+}
+
+
+
+
+
+
+
+	
+/**
+ *  Constructor
+ */
+public smartSpeedCamera() {
+
+	cameraId = setCameraId() ;
+	date= setDate();
+	location = setCityLocation();
+	streetName= setStreetName();
+	speedLimit= setSpeedLimit();
+}
 
 
 public static void main( String[] args ){
-	smartSpeedCamera CityCam = new smartSpeedCamera("City Centre","City Road",30); 
-	smartSpeedCamera Fenham = new smartSpeedCamera("Fenham","West Road",40);
+	smartSpeedCamera CityCam = new smartSpeedCamera(); 
+	smartSpeedCamera Fenham = new smartSpeedCamera();
 	
 	System.out.println("CityCam Id:\t"+CityCam.getCameraId()+"\t Camera Location : \t"+ CityCam.getCityLocation()+"\t Camera Street : \t"+ 
 	CityCam.getStreetName()+"\t Camera Motoring Speed Limit : \t"+ CityCam.getSpeedLimit()+"\t Starting Date : \t"+ CityCam.getDate());
 	
 	System.out.println("Fenham Id:\t"+Fenham.getCameraId()+"\t Camera Location : \t"+ Fenham.getCityLocation()+"\t\t Camera Street : \t"+ 
 			Fenham.getStreetName()+"\t Camera Motoring Speed Limit : \t"+ Fenham.getSpeedLimit()+"\t Starting Date : \t"+ Fenham.getDate());
-	
+		
 }
 }
 	
