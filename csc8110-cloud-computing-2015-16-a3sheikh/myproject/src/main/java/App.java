@@ -55,12 +55,12 @@ public class App
 				
 				int trafficRatePerMin=Integer.parseInt(args[0]);
 				
-				smartSpeedCamera CityCam = new smartSpeedCamera();
+				smartSpeedCamera Cam = new smartSpeedCamera();
 				
 				
-				System.out.println("CityCam Id:\t"+CityCam.getCameraId()+"\t Camera Location : \t"+ CityCam.getCityLocation()+"\t Camera Street : \t"+ 
-						CityCam.getStreetName()+"\t Camera Motoring Speed Limit : \t"+ CityCam.getSpeedLimit()+"\t Starting Date : \t"+ CityCam.getDate());
-						System.out.println("Vehicle Monotored :");
+				System.out.println("Camera Id:\t"+Cam.getCameraId()+"\t Camera Location : \t"+ Cam.getCityLocation()+"\t Camera Street : \t"+ 
+						Cam.getStreetName()+"\t Camera Motoring Speed Limit : \t"+ Cam.getSpeedLimit()+"\t Starting Date : \t"+ Cam.getDate());
+						System.out.println("Vehicle Monitoring the following Vehicle :");
 						
 				for(int i=0; i<trafficRatePerMin ; i++){
 					
