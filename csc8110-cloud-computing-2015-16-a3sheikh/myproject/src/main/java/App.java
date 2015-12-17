@@ -43,7 +43,7 @@ public class App
 				
 				
 				
-				Cam = new smartSpeedCamera();
+				/*Cam = new smartSpeedCamera();
 				
 				
 				System.out.println("Camera Id:\t"+Cam.getCameraId()+"\t Camera Location : \t"+ Cam.getCityLocation()+"\t Camera Street : \t"+ 
@@ -59,7 +59,7 @@ public class App
 					
 					System.out.println("Vehicle :\t"+ veh.getType()+"\t\t Plate No:\t"+ veh.getPlateNo()+"\t Current Speed: \t"+veh.getCurrentSpeed());
 										
-				}
+				}*/
 				
 				
 				
@@ -73,7 +73,13 @@ public class App
 			      );
 
 			ServiceBusContract service = ServiceBusService.create(config);
-		   TopicInfo topicInfo = new TopicInfo("CameraRecord");
+		  
+			//service.deleteSubscription("CameraRecord", "Monitoring");
+			service.deleteTopic("CameraRecord");
+			
+			
+			
+			TopicInfo topicInfo = new TopicInfo("CameraRecord");
 			try  
 			{
 			    CreateTopicResult result = service.createTopic(topicInfo);
@@ -85,17 +91,24 @@ public class App
 			}
 		
 			
+			SubscriptionInfo subInfo = new SubscriptionInfo("Monitoring");
+			CreateSubscriptionResult result =  service.createSubscription("CameraRecord", subInfo);
+			
+			
 			// Create message, passing a string message for the body
-		    BrokeredMessage message = new BrokeredMessage("camera message ");
+		    BrokeredMessage message = new BrokeredMessage("camera message");
+		    
 		    // Set some additional custom app-specific property
 		    message.setProperty("Camera Id", Cam.getCameraId());
-		    message.setProperty("Camera Location", Cam.getCityLocation());
-		    message.setProperty("Camera Street", Cam.getStreetName());
-		    message.setProperty("Camera Speed Limit", Cam.getSpeedLimit());
-		    // Send message to the topic
-		   
 			service.sendTopicMessage("CameraRecord", message);
-			
+		    message.setProperty("Camera Location", Cam.getCityLocation());
+			service.sendTopicMessage("CameraRecord", message);
+		    message.setProperty("Camera Street", Cam.getStreetName());
+			service.sendTopicMessage("CameraRecord", message);
+		    message.setProperty("Camera Speed Limit", Cam.getSpeedLimit());
+		    
+		    // Send message to the topic
+		   	service.sendTopicMessage("CameraRecord", message);			
 
 			
 			
