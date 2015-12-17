@@ -71,44 +71,48 @@ public class App
 			      "u+VrqpAFoXrISGxmiQClcc+NKLu7eolULJ8nPV3zWnw=",
 			      ".servicebus.windows.net"
 			      );
+				
 
 			ServiceBusContract service = ServiceBusService.create(config);
 		  
-			//service.deleteSubscription("CameraRecord", "Monitoring");
+			service.deleteSubscription("CameraRecord", "Monitoring");
 			service.deleteTopic("CameraRecord");
 			
 			
-			
+			long maxSizeInMegabytes = 5120;
 			TopicInfo topicInfo = new TopicInfo("CameraRecord");
+			topicInfo.setMaxSizeInMegabytes(maxSizeInMegabytes);
 			try  
 			{
 			    CreateTopicResult result = service.createTopic(topicInfo);
 			}
 			catch (ServiceException e) {
-			    System.out.print("ServiceException encountered: ");
+			   System.out.print("ServiceException encountered: ");
 			    System.out.println(e.getMessage());
 			    System.exit(-1);
 			}
 		
 			
 			SubscriptionInfo subInfo = new SubscriptionInfo("Monitoring");
-			CreateSubscriptionResult result =  service.createSubscription("CameraRecord", subInfo);
+			CreateSubscriptionResult result1 =  service.createSubscription("CameraRecord", subInfo);
 			
 			
 			// Create message, passing a string message for the body
-		    BrokeredMessage message = new BrokeredMessage("camera message");
-		    
+		    BrokeredMessage message = new BrokeredMessage("cameramessage");
+
 		    // Set some additional custom app-specific property
-		    message.setProperty("Camera Id", Cam.getCameraId());
-			service.sendTopicMessage("CameraRecord", message);
-		    message.setProperty("Camera Location", Cam.getCityLocation());
-			service.sendTopicMessage("CameraRecord", message);
-		    message.setProperty("Camera Street", Cam.getStreetName());
-			service.sendTopicMessage("CameraRecord", message);
-		    message.setProperty("Camera Speed Limit", Cam.getSpeedLimit());
-		    
-		    // Send message to the topic
-		   	service.sendTopicMessage("CameraRecord", message);			
+		   message.setProperty("CameraId", Cam.getCameraId());
+			
+			
+		    message.setProperty("CameraLocation", Cam.getCityLocation());
+			
+			
+		    message.setProperty("CameraStreet", Cam.getStreetName());
+			
+			
+		   message.setProperty("CameraSpeedLimit", Cam.getSpeedLimit());
+		  
+		   service.sendTopicMessage("CameraRecord", message);		 // Send message to the topic	
 
 			
 			
@@ -121,6 +125,59 @@ public class App
 				e.printStackTrace();
 			}*/				
 				
+		   
+		   try
+		   {
+		       ReceiveMessageOptions opts = ReceiveMessageOptions.DEFAULT;
+		       opts.setReceiveMode(ReceiveMode.PEEK_LOCK);
+
+		       while(true)  {
+		           ReceiveSubscriptionMessageResult  resultSubMsg = service.receiveSubscriptionMessage("CameraRecord", "HighMessages", opts);
+		           message = resultSubMsg.getValue();
+		           if (message != null && message.getMessageId() != null)
+		           {
+		               System.out.println("MessageID: " + message.getMessageId());
+		               // Display the topic message.
+		               System.out.print("From topic: ");
+		               byte[] b = new byte[200];
+		               String s = null;
+		               int numRead = message.getBody().read(b);
+		               while (-1 != numRead)
+		               {
+		                   s = new String(b);
+		                   s = s.trim();
+		                   System.out.print(s);
+		                   numRead = message.getBody().read(b);
+		               }
+		               System.out.println();
+		               System.out.println("Custom Property: " +
+		                   message.getProperty("MessageNumber"));
+		               // Delete message.
+		               System.out.println("Deleting this message.");
+		               service.deleteMessage(message);
+		           }  
+		           else  
+		           {
+		               System.out.println("Finishing up - no more messages.");
+		               break;
+		               // Added to handle no more messages.
+		               // Could instead wait for more messages to be added.
+		           }
+		       }
+		   }
+		   catch (ServiceException e) {
+		       System.out.print("ServiceException encountered: ");
+		       System.out.println(e.getMessage());
+		       System.exit(-1);
+		   }
+		   catch (Exception e) {
+		       System.out.print("Generic exception encountered: ");
+		       System.out.println(e.getMessage());
+		       System.exit(-1);
+		   }
+
+		   
+		   
 				
 					
 }}
