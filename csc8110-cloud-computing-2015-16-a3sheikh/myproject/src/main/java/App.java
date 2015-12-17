@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.microsoft.windowsazure.Configuration;
+import com.microsoft.windowsazure.serviceruntime.RoleEnvironment;
 import com.microsoft.windowsazure.services.servicebus.*;
 import com.microsoft.windowsazure.services.servicebus.models.*;
 import com.microsoft.windowsazure.core.*;
@@ -9,25 +10,35 @@ import com.microsoft.windowsazure.exception.ServiceException;
 
 import javax.xml.datatype.*;
 
-
+import com.microsoft.azure.storage.*;
+import com.microsoft.azure.storage.table.*;
+import com.microsoft.azure.storage.table.TableQuery.*;
 
 public class App
 {
 	
 	 
 	
-	
+	// Define the connection-string.
+	   public static String storageConnectionString = 
+		       "DefaultEndpointsProtocol=https://a3sheikh.table.core.windows.net/;" + 
+		       "AccountName=a3sheikh;" + 
+		       "AccountKey=aQVVjWRjdSKdJZb5Q+ZBeg6DNHbZbCCHWSPQs3DYEGyw/4I2zBh/npSq2T9sasZQEyaz6w5d7utWAtHeJO7NzQ=="; 
+	   
+	// Define config to connect with service Bus
+			public static final Configuration config = ServiceBusConfiguration.configureWithSASAuthentication(
+		      "myserverone",
+		      "RootManageSharedAccessKey",
+		      "u+VrqpAFoXrISGxmiQClcc+NKLu7eolULJ8nPV3zWnw=",
+		      ".servicebus.windows.net"
+		      );  
+	   
 	public static void main( String[] args ) throws ServiceException{
 
-		// create config to connect with service Bus
-		Configuration config = ServiceBusConfiguration.configureWithSASAuthentication(
-	      "myserverone",
-	      "RootManageSharedAccessKey",
-	      "u+VrqpAFoXrISGxmiQClcc+NKLu7eolULJ8nPV3zWnw=",
-	      ".servicebus.windows.net"
-	      );
 		
+		// starting the connection
 		ServiceBusContract service = ServiceBusService.create(config);
+		
 		// this code to delete any topcs and subscription exist for testing 
 		service.deleteSubscription("CameraRecord", "Monitoring");
 		service.deleteTopic("CameraRecord");
@@ -88,7 +99,7 @@ public class App
 					   for(int i=0; i<trafficRatePerMin ; i++){
 					
 					
-					
+						  
 					Vehicle veh = new Vehicle();
 					
 					
@@ -170,7 +181,32 @@ public class App
 		   
 		   
 		   
+					   //create a table storage 
+					
+					   
+					   // Retrieve storage account from connection-string.
+				       //storageConnectionString = RoleEnvironment.getConfigurationSettings().get("StorageConnectionString");
+				    
+					  
+				       try
+						  {
+						      // Retrieve storage account from connection-string.
+						      CloudStorageAccount storageAccount =  CloudStorageAccount.parse(storageConnectionString);
 
+						     // Create the table client.
+						     CloudTableClient tableClient = storageAccount.createCloudTableClient();
+
+						     // Create the table if it doesn't exist.
+						     String tableName = "CameraInfo";
+						  
+							CloudTable cloudTable = new CloudTable(tableName,tableClient);
+						     cloudTable.createIfNotExists();
+						  }
+						  catch (Exception e)
+						  {
+						      // Output the stack trace.
+						      e.printStackTrace();
+						  }
 		   
 		   
 				
