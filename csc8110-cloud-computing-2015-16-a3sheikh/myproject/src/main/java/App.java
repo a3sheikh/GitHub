@@ -21,7 +21,7 @@ public class App
 	
 	// Define the connection-string.
 	   public static String storageConnectionString = 
-		       "DefaultEndpointsProtocol=https://a3sheikh.table.core.windows.net/;" + 
+		       "DefaultEndpointsProtocol=http;" + 
 		       "AccountName=a3sheikh;" + 
 		       "AccountKey=aQVVjWRjdSKdJZb5Q+ZBeg6DNHbZbCCHWSPQs3DYEGyw/4I2zBh/npSq2T9sasZQEyaz6w5d7utWAtHeJO7NzQ=="; 
 	   
@@ -88,6 +88,7 @@ public class App
 						
 						
 					   message.setProperty("CameraSpeedLimit", Cam.getSpeedLimit());
+					
 					  
 					   service.sendTopicMessage("CameraRecord", message);		 // Send message to the topic	
 
@@ -147,7 +148,7 @@ public class App
 					               System.out.println("CameraLocation: " + message.getProperty("CameraLocation"));
 					               System.out.println("CameraStreet: " + message.getProperty("CameraStreet"));
 					               System.out.println("CameraSpeedLimit: " + message.getProperty("CameraSpeedLimit"));
-					           					            	  					              
+					               		            	  					              
 					               System.out.println();
 					               System.out.println("VehicleType: " + message.getProperty("VehicleType"));
 					               System.out.println("VehiclePlateNo: " + message.getProperty("VehiclePlateNo"));
@@ -181,12 +182,10 @@ public class App
 		   
 		   
 		   
-					   //create a table storage 
+					   //create a table storage from azure portal and get all connection configuration 
 					
 					   
-					   // Retrieve storage account from connection-string.
-				       //storageConnectionString = RoleEnvironment.getConfigurationSettings().get("StorageConnectionString");
-				    
+					   				    
 					  
 				       try
 						  {
@@ -208,7 +207,109 @@ public class App
 						      e.printStackTrace();
 						  }
 		   
-		   
+				       try
+				       {
+				           // Retrieve storage account from connection-string.
+				           CloudStorageAccount storageAccount =  CloudStorageAccount.parse(storageConnectionString);
+
+				           // Create the table client.
+				           CloudTableClient tableClient = storageAccount.createCloudTableClient();
+
+				           // Loop through the collection of table names.
+				           for (String table : tableClient.listTables())
+				           {
+				             // Output each table name.
+				             System.out.println(table);
+				          }
+				       }
+				       catch (Exception e)
+				       {
+				           // Output the stack trace.
+				           e.printStackTrace();
+				       }
 				
-					
+				       try
+				       {
+				           // Retrieve storage account from connection-string.
+				           CloudStorageAccount storageAccount =
+				              CloudStorageAccount.parse(storageConnectionString);
+
+				           // Create the table client.
+				           CloudTableClient tableClient = storageAccount.createCloudTableClient();
+
+				           // Create a cloud table object for the table.
+				           CloudTable cloudTable = tableClient.getTableReference("CameraInfo");
+
+				           // Create a new camera entity.
+				           CamerTable CamTable = new CamerTable(message.getProperty("CameraId"),message.getProperty("CameraLocation"), message.getProperty("CameraStreet"),message.getProperty("CameraSpeedLimit"));
+				           
+				           // Create an operation to add the new camera to the camera table.
+				           TableOperation insertCamInfo = TableOperation.insertOrReplace(CamTable);
+
+				           // Submit the operation to the table service.
+				           cloudTable.execute(insertCamInfo);
+				       }
+				       catch (Exception e)
+				       {
+				           // Output the stack trace.
+				           e.printStackTrace();
+				       }
+				       
+				       
+				       try
+						  {
+						      // Retrieve storage account from connection-string.
+						      CloudStorageAccount storageAccount =  CloudStorageAccount.parse(storageConnectionString);
+
+						     // Create the table client.
+						     CloudTableClient tableClient = storageAccount.createCloudTableClient();
+
+						     // Create the table if it doesn't exist.
+						     String tableName = "VehicleInfo";
+						  
+							CloudTable cloudTable = new CloudTable(tableName,tableClient);
+						     cloudTable.createIfNotExists();
+						  }
+						  catch (Exception e)
+						  {
+						      // Output the stack trace.
+						      e.printStackTrace();
+						  }
+				       
+				       try
+				       {
+				           // Retrieve storage account from connection-string.
+				           CloudStorageAccount storageAccount =
+				              CloudStorageAccount.parse(storageConnectionString);
+
+				           // Create the table client.
+				           CloudTableClient tableClient = storageAccount.createCloudTableClient();
+
+				           // Create a cloud table object for the table.
+				           CloudTable cloudTable = tableClient.getTableReference("VehicleInfo");
+
+				           // Create a new vehicle entity.
+				           VehicleTable vehTable = new VehicleTable(message.getProperty("VehicleType"), message.getProperty("VehiclePlateNo"),message.getProperty("VehicleCurrentSpeed"));
+				           
+				           // Create an operation to add the new camera to the camera table.
+				           TableOperation insertVehInfo = TableOperation.insertOrReplace(vehTable);
+
+				           // Submit the operation to the table service.
+				           cloudTable.execute(insertVehInfo);
+				       }
+				       catch (Exception e)
+				       {
+				           // Output the stack trace.
+				           e.printStackTrace();
+				       }
+				       
+				       
+				       
+				       
+				       
+				       
+				       
+				       
+				       
+				       
 }}
